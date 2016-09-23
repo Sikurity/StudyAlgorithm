@@ -21,8 +21,10 @@
  
 using namespace std;
  
-int N, P[MAX_NUM * 2 + 1], M[MAX_LEN + 2][MAX_LEN + 2];
-vector<int> E, O;
+int N, P[MAX_NUM * 2 + 1], M[MAX_LEN + 2][MAX_LEN + 2], parent[MAX_LEN + 2];
+int src, snk;
+
+vector<int> E, O, adj[MAX_LEN + 2];
 set<int> R;
  
 void preCalcPrime()
@@ -45,56 +47,55 @@ void preCalcPrime()
  
 int edmonds_karp(int(*matrix)[MAX_LEN + 2])
 {
-    int parent[MAX_LEN + 2], cur, next;
-    int source = 0, sink = N + 1, sum, total = 0;
+    int i, cur, next, size;
+    int flow, total = 0;
  
     queue<int> q;
  
     while(true)
     {
         memset(parent, -1, sizeof(parent));
-        parent[source] = source;
+        parent[src] = src;
  
         q = queue<int>();
-        q.push(source);
+        q.push(src);
  
-        while(!q.empty() && parent[sink] == -1)
+        while(!q.empty() && parent[snk] == -1)
         {
-            next = q.front();
+            cur = q.front();
             q.pop();
  
-            for(cur = source ; cur <= sink ; cur++)
+			size = adj[cur].size();
+            for(i = 0 ; i < size ; i++)
             {
-                if(cur == next)
-                    continue;
- 
-                if(matrix[next][cur] > 0 && parent[cur] == -1)
+				next = adj[cur][i];
+                if(matrix[cur][next] > 0 && parent[next] == -1)
                 {
-                    q.push(cur);
-                    parent[cur] = next;
+					parent[next] = cur;
+                    q.push(next);
                 }
             }
         }
  
-        // source => sink로 가는 경로는 없음
-        if(parent[sink] == -1)
+        // src => snk로 가는 경로는 없음
+        if(parent[snk] == -1)
             break;
  
-        // source => sink로 가는 경로 찾음
-        sum = INF;
+        // src => snk로 가는 경로 찾음
+        flow = INF;
  
         // 제일 작은 Capacity 간선을 탐색
-        for(cur = sink; cur > source; cur = parent[cur])
-            sum = min(sum, matrix[parent[cur]][cur]);
+        for(cur = snk; cur > src; cur = parent[cur])
+            flow = min(flow, matrix[parent[cur]][cur]);
  
         // 제일 작은 Capacity 값만큼 줄이고 역방향 간선 생성
-        for(cur = sink; cur > source; cur = parent[cur])
+        for(cur = snk; cur > src; cur = parent[cur])
         {
-            matrix[parent[cur]][cur] -= sum;
-            matrix[cur][parent[cur]] += sum;
+            matrix[parent[cur]][cur] -= flow;
+            matrix[cur][parent[cur]] += flow;
         }
  
-        total += sum;
+        total += flow;
     }
  
     return total;
@@ -103,23 +104,28 @@ int edmonds_karp(int(*matrix)[MAX_LEN + 2])
 int main()
 {
     int matrix[MAX_LEN + 2][MAX_LEN + 2];
-    int i, j, first, num, size, sizeO, sizeE;
+    int i, j, num, size;
     bool flag;
+
     set<int>::iterator iter, end;
  
     preCalcPrime();
+
     memset(M, 0, sizeof(M));
  
     scanf("%d", &N);
  
-    O.push_back(-1);
-    E.push_back(-1);
+	src = 0;
+	snk = N + 1;
+
+    O.push_back(INF);
+    E.push_back(INF);
  
-    scanf("%d", &first);
-    if(flag = (first & 1))
-        O.push_back(first);
+    scanf("%d", &num);
+    if(flag = (num & 1))
+        O.push_back(num);
     else
-        E.push_back(first);
+        E.push_back(num);
  
     for(i = 1 ; i < N ; i++)
     {
@@ -131,41 +137,56 @@ int main()
             E.push_back(num);
     }
  
-    sizeO = O.size();
-    sizeE = E.size();
- 
-    sizeO--;
-    sizeE--;
- 
-    if(sizeO != sizeE)
+    if( (size = O.size()) != E.size() )
         printf("-1");
     else
     {
-        size = sizeO = sizeE;
- 
-        M[0][1] = 1;
+		size--;
+
+        M[src][1] = 1;
+		adj[src].push_back(1);
+		adj[1].push_back(src);
+
         for(i = 2 ; i <= size ; i++)
         {
-            M[0][i] = 1;
+            M[src][i] = 1;
+			adj[src].push_back(i);
+			adj[i].push_back(src);
+
             for(j = 1 ; j <= size ; j++)
             {
-                if(P[(flag ? O : E)[i] + (flag ? E : O)[j]])
-                    M[i][j + size] = 1;
+				if(P[(flag ? O : E)[i] + (flag ? E : O)[j]])
+				{
+					M[i][j + size] = 1;
+					adj[i].push_back(j + size);
+					adj[j + size].push_back(i);
+				}
             }
-            M[i + size][N + 1] = 1;
+
+            M[i + size][snk] = 1;
+			adj[i + size].push_back(snk);
+			adj[snk].push_back(i + size);
         }
-        M[1 + size][N + 1] = 1;
+
+        M[1 + size][snk] = 1;
+		adj[1 + size].push_back(snk);
+		adj[snk].push_back(1 + size);
  
         for(i = 1 ; i <= size ; i++)
         {
-            if(P[(flag ? O : E)[1] + (flag ? E : O)[i]])
+            if( P[(flag ? O[1] + E[i] : E[1] + O[i])] )
             {
                 memcpy(matrix, M, sizeof(M));
  
                 matrix[1][i + size] = 1;
+				adj[1].push_back(i + size);
+				adj[i + size].push_back(1);
  
                 if(edmonds_karp(matrix) == size)
-                    R.insert((flag ? E : O)[i]);
+                    R.insert(flag ? E[i] : O[i]);
+
+				adj[1].pop_back();
+				adj[i + size].pop_back();
             }
         }
  

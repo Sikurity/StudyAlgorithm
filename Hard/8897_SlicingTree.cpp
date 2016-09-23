@@ -65,7 +65,6 @@ int workH(int t1, int t2)
 	w.resize(unique(w.begin(), w.end()) - w.begin());
 	h.resize(w.size(), inf);
 
-
 	for(int i = 0; i < ret[t1].size(); ++i)
 	{
 		for(int j = 0; j < ret[t2].size(); ++j)
@@ -172,7 +171,6 @@ void solved(int nT)
 
 	for(int i = 0; i < 2 * n - 1; ++i)
 	{
-
 		if(num[i] > 0)
 			sta[++top] = num[i];
 		else if(num[i] == -1)
@@ -187,7 +185,6 @@ void solved(int nT)
 
 			sta[--top] = p;
 		}
-
 	}
 
 	LL result = ret[sta[0]][0].area();

@@ -20,9 +20,11 @@
 #define INF			0x7FFFFFFF
 using namespace std;
 
-int X, N, M[MAX_LENGTH + 3][MAX_LENGTH + 3], D[MAX_LENGTH + 3], L[MAX_LENGTH + 3], P[MAX_NUM * 3];
-vector<int> E, O;
+int N, M[MAX_LENGTH + 2][MAX_LENGTH + 2], P[MAX_NUM * 2];
+int dist[MAX_LENGTH + 2], linked[MAX_LENGTH + 2];
+int src, snk;
 
+vector<int> E, O, adj[MAX_LENGTH + 2];
 set<int> R;
 
 void preCalcPrime()
@@ -43,84 +45,91 @@ void preCalcPrime()
 	}
 }
 
-bool BFS(int(*matrix)[MAX_LENGTH + 3], int size)
+bool bfs(int(*matrix)[MAX_LENGTH + 2])
 {
 	queue<int> Q;
-	int u, v;
+	int i, cur, next, size;
 
-	for(u = 1 ; u <= size ; u++)
+	for(cur = 1 ; cur <= (N / 2) ; cur++)
 	{
-		if(L[u] == X)
+		if(linked[cur] == src)
 		{
-			D[u] = 0;
-			Q.push(u);
+			dist[cur] = 0;
+			Q.push(cur);
 		}
 		else
-			D[u] = INF;
+			dist[cur] = INF;
 	}
 
-	D[X] = INF;
+	dist[snk] = INF;
+
 	while(!Q.empty())
 	{
-		u = Q.front();
+		cur = Q.front();
 		Q.pop();
 
-		if(D[u] < D[X])
+		if( dist[cur] < dist[snk] )
 		{
-			for(v = 1 ; v <= N ; v++)
+			size = adj[cur].size();
+			for(i = 0 ; i <  size ; i++)
 			{
-				if(matrix[u][v] && D[L[v]] == INF)
+				next = adj[cur][i];
+				if(matrix[cur][next] && dist[linked[next]] == INF)
 				{
-					D[L[v]] = D[u] + 1;
-					Q.push(L[v]);
+					dist[linked[next]] = dist[cur] + 1;
+					Q.push(linked[next]);
 				}
 			}
 		}
 	}
 
-	return D[X] != INF;
+	return dist[snk] != INF;
 }
 
-bool DFS(int(*matrix)[MAX_LENGTH + 3], int u, int size)
+bool dfs(int(*matrix)[MAX_LENGTH + 2], int cur)
 {
-	int v;
+	int i, next, size;
 
-	if(u != X)
+	if( cur != snk )
 	{
-		for(v = 1 ; v <= N ; v++)
+		size = adj[cur].size();
+		for( i = 0 ; i < size ; i++ )
 		{
-			if(matrix[u][v] && D[L[v]] == D[u] + 1)
+			next = adj[cur][i];
+			if(matrix[cur][next] && dist[linked[next]] == dist[cur] + 1)
 			{
-				if(DFS(matrix, L[v], size))
+				if(dfs(matrix, linked[next]))
 				{
-					L[v] = u;
-					L[u] = v;
+					linked[next] = cur;
+					linked[cur] = next;
 
 					return true;
 				}
 			}
 		}
 
-		D[u] = INF;
+		dist[cur] = INF;
+
 		return false;
 	}
 
 	return true;
 }
 
-int HopcroftKarp(int(*matrix)[MAX_LENGTH + 3], int size)
+int HopcroftKarp(int(*matrix)[MAX_LENGTH + 2], int size)
 {
-	int u, matched;
-
-	for(u = 0 ; u <= N + 1 ; u++)
-		L[u] = X;
+	int cur, matched;
+	
+	for(cur = src ; cur <= snk ; cur++)
+		linked[cur] = (cur <= size) ? src : snk;
 
 	matched = 0;
-	while(BFS(matrix, size))
+
+	while(bfs(matrix))
 	{
-		for(u = 1 ; u <= size ; u++)
+		for(cur = 1 ; cur <= size ; cur++)
 		{
-			if(L[u] == X && DFS(matrix, u, size))
+			if(linked[cur] == src && dfs(matrix, cur))
 				matched++;
 		}
 	}
@@ -131,27 +140,30 @@ int HopcroftKarp(int(*matrix)[MAX_LENGTH + 3], int size)
 int main()
 {
 	set<int>::iterator iter, end;
-	int i, j, first, num, range, sizeO, sizeE, matrix[MAX_LENGTH + 3][MAX_LENGTH + 3];
+	int i, j, num, size;
+	int matrix[MAX_LENGTH + 2][MAX_LENGTH + 2];
 	bool flag;
 
 	preCalcPrime();
 
 	scanf("%d", &N);
 
-	X = N + 2;
+	src = 0;
+	snk = N + 1;
 
 	memset(M, 0, sizeof(M));
-
-	scanf("%d", &first);
-	flag = first & 1;
 
 	O.push_back(-1);
 	E.push_back(-1);
 
+	scanf("%d", &num);
+	
+	flag = num & 1;
+
 	if(flag)
-		O.push_back(first);
+		O.push_back(num);
 	else
-		E.push_back(first);
+		E.push_back(num);
 
 	for(i = 1 ; i < N ; i++)
 	{
@@ -163,35 +175,42 @@ int main()
 			E.push_back(num);
 	}
 
-	sizeO = O.size() - 1;
-	sizeE = E.size() - 1;
-
-	if(sizeO == sizeE)
+	if( (size = O.size() ) == E.size() )
 	{
-		range = sizeO = sizeE;
+		size--;
 
-		for(i = 2 ; i <= range ; i++)
+		for(i = 2 ; i <= size ; i++)
 		{
-			for(j = 1 ; j <= range ; j++)
+			for(j = 1 ; j <= size ; j++)
 			{
 				if(P[flag ? O[i] + E[j] : E[i] + O[j]])
-					M[i][j + range] = 1;
+				{
+					M[i][j + size] = 1;
+					adj[i].push_back(j + size);
+					adj[j + size].push_back(i);
+				}
 			}
 		}
 
-		for(i = 1 ; i <= range ; i++)
+		for(i = 1 ; i <= size ; i++)
 		{
 			if(P[flag ? O[1] + E[i] : E[1] + O[i]])
 			{
 				memcpy(matrix, M, sizeof(M));
-				matrix[1][i + range] = 1;
+				matrix[1][i + size] = 1;
+				
+				adj[1].push_back(i + size);
+				adj[i + size].push_back(1);
 
-				if(HopcroftKarp(matrix, range) == range)
+				if(HopcroftKarp(matrix, size) == size)
 					R.insert(flag ? E[i] : O[i]);
+
+				adj[1].pop_back();
+				adj[i + size].pop_back();
 			}
 		}
 
-		if(R.size())
+		if( R.size() )
 		{
 			end = R.end();
 			for(iter = R.begin() ; iter != end ; iter++)

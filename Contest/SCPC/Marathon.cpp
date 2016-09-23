@@ -1,116 +1,90 @@
-//#include <stdio.h>
-//
-//typedef enum BOOL{FALSE, TRUE} BOOL;
-//
-//int abs(int);
-//int min(int, int);
-//
-//int T, R, M, N, K;
-//
-//int H[150][150];
-//int W[150][150];
-//int D[150][150][15];
-//
-//void algorithm();
-//
-//int main()
-//{
-//	int i, j, k;
-//	int t = 0;
-//
-//	scanf("%d", &T);
-//
-//	while( t++ < T )
-//	{
-//		R = 0;
-//
-//		for( i = 0 ; i < 150 ; i++ )
-//		{
-//			for ( j = 0 ; j < 150 ; j++ )
-//			{
-//				H[j][i] = 0;
-//				W[j][i] = 0;
-//				for ( k = 0 ; k < 14 ; k++)
-//					D[i][j][k] = 99999999;
-//			}
-//		}
-//
-//		scanf("%d %d %d", &M, &N, &K);
-//
-//		for( i = 0 ; i <= N ; i++ )
-//			for( j = 0 ; j <= M ; j++ )
-//			{
-//				scanf("%d", &H[i][j]);
-//
-//				if (H[i][j] < 0)
-//				{
-//					H[i][j] *= -1;
-//					W[i][j] = TRUE;
-//				}
-//			}
-//
-//		algorithm();
-//
-//		printf("Case #%d\n%d\n", t, R);
-//	}
-//
-//	return 0;
-//}
-//
-//int abs(int x)
-//{
-//	return x < 0 ? -x : x;
-//}
-//
-//int min(int x, int y)
-//{
-//	return x > y ? y : x;
-//}
-//
-//void algorithm()
-//{
-//	int i, j, k;
-//
-//	for( j = 0 ; j <= N ; j++ )
-//	{
-//		for( i = 0 ; i <= M ; i++ )
-//		{
-//			if( j == 0 && i == 0 )
-//				D[0][0][0] = 0;
-//			else if( j == 0 )
-//			{
-//				for( k = 0 ; k <= K ; k++ )
-//				{
-//					if( W[i][j] == FALSE || k == K )
-//						D[i][j][k] = min(D[i][j][k], D[i - 1][j][k] + abs(H[i][j] - H[i - 1][j]));
-//					else
-//						D[i][j][k + 1] = min(D[i][j][k + 1], D[i - 1][j][k] + abs(H[i][j] - H[i - 1][j]));
-//				}
-//			}
-//			else if( i == 0 )
-//			{
-//				for( k = 0 ; k <= K ; k++ )
-//				{
-//					if( W[i][j] == FALSE || k == K )
-//						D[i][j][k] = min(D[i][j][k], D[i][j - 1][k] + abs(H[i][j] - H[i][j - 1]));
-//					else
-//						D[i][j][k + 1] = min(D[i][j][k+1], D[i][j - 1][k] + abs(H[i][j] - H[i][j - 1]));
-//				}
-//			}
-//			else
-//			{
-//				for( k = 0 ; k <= K ; k++ )
-//				{
-//					if( W[i][j] == FALSE || k == K )
-//						D[i][j][k] = min(D[i][j][k], min(D[i][j - 1][k] + abs(H[i][j] - H[i][j - 1]), D[i-1][j][k] + abs(H[i][j] - H[i-1][j])));
-//					else
-//						D[i][j][k + 1] = min(D[i][j][k+1], min(D[i][j - 1][k] + abs(H[i][j] - H[i][j - 1]), D[i-1][j][k] + abs(H[i][j] - H[i-1][j])));
-//				}
-//			}
-//		}
-//	}
-//
-//	R = D[M][N][K];
-//
-//	return;
-//}
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <cstdio>
+#include <iostream>
+#include <cstring>
+
+#define INF			19801
+#define MAX_LENGTH	100
+#define MAX_WATER	10
+
+using namespace std;
+
+int abs(int num)
+{
+	return num < 0 ? -num : num;
+}
+
+int min(int a, int b)
+{
+	return a <= b ? a : b;
+}
+
+int T, M, N, K, R;
+
+int H[MAX_LENGTH + 1][MAX_LENGTH + 1];
+int DP[MAX_LENGTH + 1][MAX_LENGTH + 1][MAX_WATER + 1];
+
+int algorithm(int x, int y, int w)
+{
+	int ret, prev, cur, next;
+
+	next = (w && H[y][x] < 0) ? w - 1 : w;
+	cur = abs(H[y][x]);
+
+	if(x && y)
+	{
+		prev = abs(H[y - 1][x]);
+		ret = abs(cur - prev) + DP[y - 1][x][next];
+
+		prev = abs(H[y][x - 1]);
+		next = abs(cur - prev) + DP[y][x - 1][next];
+
+		ret = min(ret, next);
+	}
+	else if(x)
+	{
+		prev = abs(H[y][x - 1]);
+		ret = abs(cur - prev) + DP[y][x - 1][next];
+	}
+	else if(y)
+	{
+		prev = abs(H[y - 1][x]);
+		ret = abs(cur - prev) + DP[y - 1][x][next];
+	}
+	else
+		ret = w ? INF : 0;
+
+	return ret;
+}
+
+int main()
+{
+	int i, j, w, t;
+
+	setbuf(stdout, NULL);
+
+	cin >> T;
+
+	for(t = 1 ; t <= T ; t++)
+	{
+		memset(DP, -1, sizeof(DP));
+
+		cin >> M >> N >> K;
+
+		for(i = 0 ; i <= N ; i++)
+			for(j = 0 ; j <= M ; j++)
+				cin >> H[i][j];
+
+		for(w = 0 ; w <= K ; w++)
+			for(i = 0 ; i <= N ; i++)
+				for(j = 0 ; j <= M ; j++)
+					DP[i][j][w] = algorithm(j, i, w);
+
+		R = DP[N][M][K];
+
+		cout << "Case #" << t << endl << R << endl;
+	}
+
+	return 0;
+}

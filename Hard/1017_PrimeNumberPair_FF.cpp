@@ -21,8 +21,10 @@
 
 using namespace std;
 
-int N, L[MAX_NUM + 2], P[MAX_NUM * 2 + 1], M[MAX_LEN + 2][MAX_LEN + 2];
-vector<int> E, O;
+int N, M[MAX_LEN + 2][MAX_LEN + 2], P[MAX_NUM * 2 + 1], parent[MAX_NUM + 2];
+int src, snk;
+
+vector<int> E, O, adj[MAX_LEN + 2];
 set<int> R;
 
 void preCalcPrime()
@@ -45,19 +47,19 @@ void preCalcPrime()
 
 void dfs(int cur, int(*matrix)[MAX_LEN + 2])
 {
-	int next, source = 0, sink = N + 1;
+	int i, next, size;
 
-	for(next = source ; next <= sink ; next++)
+	size = adj[cur].size();
+	for(i = 0 ; i < size ; i++)
 	{
-		if(cur == next)
-			continue;
+		next = adj[cur][i];
 
-		if(matrix[cur][next] > 0 && L[next] == -1)
+		if( matrix[cur][next] > 0 && parent[next] == -1 )
 		{
-			L[cur] = next;
+			parent[next] = cur;
 			dfs(next, matrix);
 
-			if(L[sink] > -1)
+			if(parent[snk] > -1)
 				return;
 		}
 	}
@@ -65,37 +67,36 @@ void dfs(int cur, int(*matrix)[MAX_LEN + 2])
 
 int ford_fulkerson(int(*matrix)[MAX_LEN + 2])
 {
-	int cur, next;
-	int source = 0, sink = N + 1, sum, total = 0;
+	int cur, flow, total = 0;
 
 	queue<int> q;
 
 	while(true)
 	{
-		memset(L, -1, sizeof(L));
-		L[source] = source;
+		memset(parent, -1, sizeof(parent));
+		parent[src] = src;
 
-		dfs(source, matrix);
+		dfs(src, matrix);
 
-		// source => sink로 가는 경로는 없음
-		if(L[sink] == -1)
+		// src => snk로 가는 경로는 없음
+		if(parent[snk] == -1)
 			break;
 
-		// source => sink로 가는 경로 찾음
-		sum = INF;
+		// src => snk로 가는 경로 찾음
+		flow = INF;
 
 		// 제일 작은 Capacity 간선을 탐색
-		for(cur = sink; cur > source; cur = L[cur])
-			sum = min(sum, matrix[L[cur]][cur]);
+		for(cur = snk; cur > src; cur = parent[cur])
+			flow = min(flow, matrix[parent[cur]][cur]);
 
 		// 제일 작은 Capacity 값만큼 줄이고 역방향 간선 생성
-		for(cur = sink; cur > source; cur = L[cur])
+		for(cur = snk; cur > src; cur = parent[cur])
 		{
-			matrix[L[cur]][cur] -= sum;
-			matrix[cur][L[cur]] += sum;
+			matrix[parent[cur]][cur] -= flow;
+			matrix[cur][parent[cur]] += flow;
 		}
 
-		total += sum;
+		total += flow;
 	}
 
 	return total;
@@ -104,7 +105,7 @@ int ford_fulkerson(int(*matrix)[MAX_LEN + 2])
 int main()
 {
 	int matrix[MAX_LEN + 2][MAX_LEN + 2];
-	int i, j, first, num, size, sizeO, sizeE;
+	int i, j, num, size;
 	bool flag;
 	set<int>::iterator iter, end;
 
@@ -113,14 +114,17 @@ int main()
 
 	scanf("%d", &N);
 
+	src = 0;
+	snk = N + 1;
+
 	O.push_back(-1);
 	E.push_back(-1);
 
-	scanf("%d", &first);
-	if(flag = (first & 1))
-		O.push_back(first);
+	scanf("%d", &num);
+	if(flag = (num & 1))
+		O.push_back(num);
 	else
-		E.push_back(first);
+		E.push_back(num);
 
 	for(i = 1 ; i < N ; i++)
 	{
@@ -132,41 +136,56 @@ int main()
 			E.push_back(num);
 	}
 
-	sizeO = O.size();
-	sizeE = E.size();
-
-	sizeO--;
-	sizeE--;
-
-	if(sizeO != sizeE)
+	if( (size = O.size()) != E.size() )
 		printf("-1");
 	else
 	{
-		size = sizeO = sizeE;
+		size--;
 
-		M[0][1] = 1;
+		M[src][1] = 1;
+		adj[src].push_back(1);
+		adj[1].push_back(src);
+
 		for(i = 2 ; i <= size ; i++)
 		{
-			M[0][i] = 1;
+			M[src][i] = 1;
+			adj[src].push_back(i);
+			adj[i].push_back(src);
+
 			for(j = 1 ; j <= size ; j++)
 			{
 				if(P[(flag ? O : E)[i] + (flag ? E : O)[j]])
+				{
 					M[i][j + size] = 1;
+					adj[i].push_back(j + size);
+					adj[j + size].push_back(i);
+				}
 			}
-			M[i + size][N + 1] = 1;
+
+			M[i + size][snk] = 1;
+			adj[i + size].push_back(snk);
+			adj[snk].push_back(i + size);
 		}
-		M[1 + size][N + 1] = 1;
+
+		M[1 + size][snk] = 1;
+		adj[1 + size].push_back(snk);
+		adj[snk].push_back(1 + size);
 
 		for(i = 1 ; i <= size ; i++)
 		{
-			if(P[(flag ? O : E)[1] + (flag ? E : O)[i]])
+			if(P[(flag ? O[1] + E[i] : E[1] + O[i])] )
 			{
 				memcpy(matrix, M, sizeof(M));
 
 				matrix[1][i + size] = 1;
+				adj[1].push_back(i + size);
+				adj[i + size].push_back(1);
 
 				if(ford_fulkerson(matrix) == size)
 					R.insert((flag ? E : O)[i]);
+
+				adj[1].pop_back();
+				adj[i + size].pop_back();
 			}
 		}
 

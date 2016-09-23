@@ -6,8 +6,6 @@
 #define MAX_CASE_NUM	30
 #define MAX_CLOCK_NUM	16
 
-//typedef enum BOOL{ FALSE, TRUE } BOOL;
-
 static int nCaseNum;
 static int nTotalCount;
 
@@ -29,7 +27,7 @@ static int arnClock[MAX_CASE_NUM][MAX_CLOCK_NUM];
 
 void algorithm(int);
 void recursiveCheck(int, int, int);
-BOOL checkAnswer(int);
+bool checkAnswer(int);
 
 int main()
 {
@@ -134,13 +132,13 @@ void recursiveCheck(int caseNum, int linkNum, int repeatNum)
 	return;
 }
 
-BOOL checkAnswer(int caseNum)
+bool checkAnswer(int caseNum)
 {
 	int i;
 
 	for( i = 0 ; i < MAX_CLOCK_NUM ; i++ )
 		if( arnClock[caseNum][i] % 12 )
-			return FALSE;
+			return false;
 
-	return TRUE;
+	return true;
 }

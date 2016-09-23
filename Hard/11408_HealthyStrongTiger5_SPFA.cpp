@@ -10,44 +10,46 @@
 
 using namespace std;
 
-typedef struct _edge
+typedef struct _Edge
 {
-	//int dest;
+	//int from;
+	//int onto;
+	//int capa;
 	int flow;
 	int cost;
-} edge;
+} Edge;
 
 vector<int> adj[MAX_LEN + 2];
-edge W[MAX_LEN + 2][MAX_LEN + 2];
+Edge W[MAX_LEN + 2][MAX_LEN + 2];
 
 int N, M;
+int parent[MAX_LEN + 2], dist[MAX_LEN + 2], visited[MAX_LEN + 2];
+int src, snk;
 pair<int, int> R;
 
 pair<int, int> spfa()
 {
-	int parent[MAX_LEN + 2], dist[MAX_LEN + 2], visited[MAX_LEN + 2];
 	int i, cur, next, size;
-	//int sum;
-
-	const int source = 0, sink = N + M + 1;
+	//int flow;
 
 	pair<int, int> ret(0, 0);
 	queue<int> q;
 
 	while(true)
 	{
-		for(i = source; i <= sink; i++)
+		for(i = src; i <= snk; i++)
 			dist[i] = INF;
+
 		memset(visited, false, sizeof(visited));
 		memset(parent, -1, sizeof(parent));
 
-		parent[source] = source;
+		parent[src] = src;
 
-		dist[source] = 0;
-		visited[source] = true;
+		dist[src] = 0;
+		visited[src] = true;
 
 		q = queue<int>();
-		q.push(source);
+		q.push(src);
 
 		while( !q.empty() )
 		{
@@ -55,17 +57,18 @@ pair<int, int> spfa()
 			q.pop();
 
 			size = adj[cur].size();
-			for(next = 0; next < size; next++) 
+			for(i = 0; i< size; i++) 
 			{
-				if(W[cur][adj[cur][next]].flow > 0 && dist[adj[cur][next]] > dist[cur] + W[cur][adj[cur][next]].cost)
+				next = adj[cur][i];
+				if(W[cur][next].flow > 0 && dist[next] > dist[cur] + W[cur][next].cost)
 				{
-					dist[adj[cur][next]] = dist[cur] + W[cur][adj[cur][next]].cost;
-					parent[adj[cur][next]] = cur;
+					dist[next] = dist[cur] + W[cur][next].cost;
+					parent[next] = cur;
 
-					if(!visited[adj[cur][next]])
+					if(!visited[next])
 					{
-						visited[adj[cur][next]] = true;
-						q.push(adj[cur][next]);
+						visited[next] = true;
+						q.push(next);
 					}
 				}
 			}
@@ -73,19 +76,19 @@ pair<int, int> spfa()
 			visited[cur] = false;
 		}
 
-		// source => sink로 가는 경로는 없음
-		if(parent[sink] == -1)
+		// src => snk로 가는 경로는 없음
+		if(parent[snk] == -1)
 			break;
 
-		// source => sink로 가는 경로 찾음
-		//sum = INF;
+		// src => snk로 가는 경로 찾음
+		//flow = INF;
 
 		// 제일 작은 Capacity 간선을 탐색
-		//for (cur = sink; cur > source; cur = parent[cur])
-		//  sum = min(sum, W[parent[cur]][cur].flow);
+		//for (cur = snk; cur > src; cur = parent[cur])
+		//  flow = min(flow, W[parent[cur]][cur].flow);
 
 		// 제일 작은 Capacity 값만큼 줄이고 역방향 간선 생성
-		for(cur = sink; cur > source; cur = parent[cur])
+		for(cur = snk; cur > src; cur = parent[cur])
 		{
 			W[parent[cur]][cur].flow--;
 			W[cur][parent[cur]].flow++;
@@ -101,7 +104,7 @@ pair<int, int> spfa()
 int main()
 {
 	int i, j, n, t, c;
-	//edge e;
+	//Edge e;
 	//int testcase;
 	//FILE *fp[2];
 
@@ -116,15 +119,17 @@ int main()
 		//fscanf(fp[0], "%d %d", &N, &M);
 		scanf("%d %d", &N, &M);
 
+		src = 0, snk = N + M + 1;
+
 		for(i = 1; i <= N; i++)
 		{
-			adj[0].push_back(i);
-			W[0][i].flow = 1;
-			W[0][i].cost = 0;
+			adj[src].push_back(i);
+			W[src][i].flow = 1;
+			W[src][i].cost = 0;
 
 			adj[i].push_back(0);
-			W[i][0].flow = 0;
-			W[i][0].cost = 0;
+			W[i][src].flow = 0;
+			W[i][src].cost = 0;
 		}
 
 		for(i = 1; i <= N; i++)
@@ -149,13 +154,13 @@ int main()
 
 		for(i = 1; i <= M; i++)
 		{
-			adj[N + i].push_back(N + M + 1);
-			W[N + i][N + M + 1].flow = 1;
-			W[N + i][N + M + 1].cost = 0;
+			adj[N + i].push_back(snk);
+			W[N + i][snk].flow = 1;
+			W[N + i][snk].cost = 0;
 
-			adj[N + M + 1].push_back(N + i);
-			W[N + M + 1][N + i].flow = 0;
-			W[N + M + 1][N + i].cost = 0;
+			adj[snk].push_back(N + i);
+			W[snk][N + i].flow = 0;
+			W[snk][N + i].cost = 0;
 		}
 
 		R = spfa();

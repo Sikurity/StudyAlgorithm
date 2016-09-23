@@ -12,58 +12,57 @@
 #include <math.h>
 #include <algorithm>
 #include <vector>
+#include <set>
 
 #define MAX_LENGTH	50
 #define MAX_NUM		1000
 
 using namespace std;
 
-int N, L[2 * MAX_NUM + 1], P[2 * MAX_NUM];
-bool V[2 * MAX_NUM + 1];
+int N, L[MAX_LENGTH + 1], P[2 * MAX_NUM];
+bool V[MAX_LENGTH + 1];
 
-vector<int> E, O, R;
-vector< vector<int> > M;
+vector<int> E, O, M[MAX_LENGTH + 1];
+set<int> R;
 
-int dfs(int cur, bool flag)
+bool dfs(int cur)
 {
-	int i, next, size, num;
+	int i, next, size;
 
-	num = flag ? O[cur] : E[cur];
-
-	if( V[num] )
+	if( V[cur] )
 		return 0;
 
-	V[num] = true;
+	V[cur] = true;
 	
 	size = M[cur].size();
 	for( i = 0; i < size; i++) 
 	{
 		next = M[cur][i];
-		if( L[next] == -1 || dfs(L[next], flag) )
+		if( L[next] == -1 || dfs(L[next]) )
 		{
 			L[next] = cur;
 
-			return 1;
+			return true;
 		}
 	}
 
-	return 0;
+	return false;
 }
 
-int match(int first)
+int match()
 {
-	int i, size, flag, ret;
+	int i, size, ret;
 
 	ret = 0;
-	flag = first & 1;
+	size = O.size();
 
-	size = M.size();
 	memset(L, -1, sizeof(L));
+
 	for(i = 0; i < size ; i++)
 	{
 		memset(V, false, sizeof(V));
 
-		if( dfs(i, flag) )
+		if( dfs(i) )
 			ret++;
 	}
 
@@ -90,81 +89,73 @@ void preCalcPrime()
 
 int main()
 {
-	int i, j, first, num, sum, flag, size, range;
+	int i, j, num, sum, flag, size;
+	set<int>::iterator iter, end;
 
 	preCalcPrime();
 
 	scanf("%d", &N);
 
-	scanf("%d", &first);
-	flag = first & 1;
+	scanf("%d", &num);
+	flag = num & 1;
 
 	if(flag)
-		O.push_back(first);
+		O.push_back(num);
 	else
-		E.push_back(first);
-
-	M.push_back(vector<int>());
+		E.push_back(num);
 
 	for(i = 1; i < N; i++)
 	{
 		scanf("%d", &num);
 
 		if(num & 1)
-		{
 			O.push_back(num);
-			if( flag )
-				M.push_back(vector<int>());
+		else
+			E.push_back(num);
+	}
+
+	if( (size = O.size()) != E.size() )
+		printf("-1");
+	else
+	{
+		for(i = 1 ; i < size ; i++)
+		{
+			for(j = 0 ; j < size ; j++)
+			{
+				sum = flag ? O[i] + E[j] : E[i] + O[j];
+
+				if( P[sum] )
+				{
+					M[i].push_back(j + size);
+					M[j + size].push_back(i);
+				}
+			}
+		}
+
+		for(i = 0 ; i < size ; i++)
+		{
+			if( P[(flag ? O[0] + E[i] : E[0] + O[i])] )
+			{
+				M[0].push_back(i + size);
+				M[i + size].push_back(0);
+
+				if( match() == size )
+					R.insert(flag ? E[i] : O[i]);
+
+				M[0].pop_back();
+				M[i + size].pop_back();
+			}
+		}
+
+		if( R.size() )
+		{
+			end = R.end();
+			for(iter = R.begin() ; iter != end ; iter++)
+				printf("%d ", *iter);
 		}
 		else
-		{
-			E.push_back(num);
-			if(!flag)
-				M.push_back(vector<int>());
-		}
+			printf("-1");
 	}
-
-	size	= flag ? O.size() : E.size();
-	range	= flag ? E.size() : O.size();
-
-	if(size != range)
-	{
-		printf("-1");
-		return 0;
-	}
-
-	for(i = 1 ; i < size ; i++)
-	{
-		for(j = 0 ; j < range ; j++)
-		{
-			sum = flag ? O[i] + E[j] : E[i] + O[j];
-			if(P[sum])
-				M[i].push_back(j);
-		}
-	}
-
-	for(i = 0 ; i < size ; i++)
-	{
-		if(P[first + (flag ? E : O)[i]])
-		{
-			M[0].push_back(i);
-
-			if(match(first) == size)
-				R.push_back((flag ? E : O)[i]);
-
-			M[0].clear();
-		}
-	}
-
-	range = R.size();
-	if(range)
-	{
-		sort(R.begin(), R.end());
-		for( i = 0 ; i < range ;i++ )
-			printf("%d ", R[i]);
-	}
-	else
-		printf("-1");
 
 	return 0;
 }

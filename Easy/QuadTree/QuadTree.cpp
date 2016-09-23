@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <string>
 
 #define MAX_CASE_NUM	50
 #define MAX_STR_LENG	1000

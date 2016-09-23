@@ -1,190 +1,215 @@
-/*************************************************************************
-> File Name: code.cpp
-> Author: ALex
-> Mail: zchao1995@gmail.com
-************************************************************************/
+/**
+*   @link   https://www.acmicpc.net/problem/8904
+*   @date	2016. 09. 13 12:33
+*   @author Sikurity
+*   @method Network Flow Algorithm : Dinic Algorithm[ O(E * V^2) ] - Time & Employee Modeling
+*/
 
-#include <iostream>
-#include <cstdio>
-#include <cstring>
-#include <algorithm>
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
 #include <vector>
 #include <queue>
 #include <set>
+#include <algorithm>
 
-#define MAXN 777
-#define MAXM 400005
-#define INF 1000000007
+#define MAX_TIME        501
+#define MAX_FURNITURE   100
+#define INF 0x3FFFFFFF
 
 using namespace std;
 
-struct EDGE
-{
-	int v, next;
-	int w;
-} edge[MAXM];
+//typedef struct _Edge
+//{
+//  int from;
+//  int goto;
+//  int capa;
+//  int flow;
+//  int cost;
+//} Edge;
 
-int head[MAXN], e;
+int T, M, N, S, W, D, C[MAX_TIME + MAX_FURNITURE + 2][MAX_TIME + MAX_FURNITURE + 2];
+int saved[MAX_TIME + MAX_FURNITURE + 2], dist[MAX_TIME + MAX_FURNITURE + 2];
+int src, snk;
 
-void init()
-{
-	memset(head, -1, sizeof(head));
-	e = 0;
-}
-inline void add(int u, int v, int w)
-{
-	edge[e].v = v;
-	edge[e].w = w;
-	edge[e].next = head[u];
-	head[u] = e++;
-	edge[e].v = u;
-	edge[e].w = 0;
-	edge[e].next = head[v];
-	head[v] = e++;
-}
-int n;
-int h[MAXN];
-int gap[MAXN];
-int src, des;
-inline int dfs(int pos, int cost)
-{
-	if(pos == des) return cost;
-	int j, minh = n - 1;
-	int lv = cost, d;
-	for(j = head[pos]; j != -1; j = edge[j].next)
-	{
-		int v = edge[j].v;
-		int w = edge[j].w;
-		if(w > 0)
-		{
-			if(h[v] + 1 == h[pos])
-			{
-				if(lv < edge[j].w) d = lv;
-				else d = edge[j].w;
-				d = dfs(v, d);
-				edge[j].w -= d;
-				edge[j ^ 1].w += d;
-				lv -= d;
-				if(h[src] >= n) return cost - lv;
-				if(lv == 0) break;
-			}
-			if(h[v] < minh) minh = h[v];
-		}
-	}
-	if(lv == cost)
-	{
-		--gap[h[pos]];
-		if(gap[h[pos]] == 0) h[src] = n;
-		h[pos] = minh + 1;
-		++gap[h[pos]];
-	}
-	return cost - lv;
-}
-int sap()
-{
-	int ret = 0;
-	memset(gap, 0, sizeof(gap));
-	memset(h, 0, sizeof(h));
-	gap[0] = n;
-	while(h[src] < n) ret += dfs(src, INF);
-	return ret;
-}
-int nt, m;
-struct P
-{
-	int s, d, w;
-} p[111];
-void build()
-{
-	src = 500 + nt + m + 1;
-	des = src + 1;
-	n = des;
-	for(int i = 1; i <= nt; i++) add(src, i, p[i].w);
-	for(int i = 1; i <= nt; i++)
-	{
-		for(int j = p[i].s; j < p[i].d; j++)
-			add(i, nt + j, 1);
-	}
-	for(int i = 1; i <= 500; i++)
-		for(int j = 1; j <= m; j++)
-			add(nt + i, nt + 500 + j, 1);
-	for(int i = 1; i <= m; i++)
-		add(nt + 500 + i, des, INF);
-}
-vector<int>g[111];
-vector<pair<int, int> >ans[111];
-void gao(int u)
-{
-	for(int i = head[u]; i != -1; i = edge[i].next)
-	{
-		int v = edge[i].v;
-		for(int j = head[v]; j != -1; j = edge[j].next)
-		{
-			if(edge[j].v == src) continue;
-			if(edge[j].w) continue;
-			g[v].push_back(edge[j].v - nt);
+vector<int> adj[MAX_TIME + MAX_FURNITURE + 2];
+vector<int> ret;
 
-			//printf("ss %d %d\n", v, edge[j].v - nt);
-		}
-	}
-}
-int main()
+void addEdge(int u, int v, int capa)
 {
-	int T;
-	scanf("%d", &T);
-	while(T--)
+	C[u][v] = capa;
+	adj[u].push_back(v);
+	adj[v].push_back(u);
+}
+
+void getTimeLine(int w)
+{
+	int i, size, s, t;
+
+	ret.clear();
+
+	s = t = -1;
+
+	for(i = 1 ; i < MAX_TIME ; i++)
 	{
-		init();
-		scanf("%d%d", &m, &nt);
-		int sum = 0;
-		for(int i = 1; i <= nt; i++)
+		if(C[MAX_TIME + w][i] > 0)
 		{
-			scanf("%d%d%d", &p[i].s, &p[i].w, &p[i].d);
-			sum += p[i].w;
-		}
-		build();
-		for(int i = 0; i <= 105; i++) g[i].clear(), ans[i].clear();
-		int tmp = sap();
-		if(tmp != sum)
-		{
-			printf("0\n");
-			continue;
+			if(s == -1)
+				s = t = i;
+			else
+				t = i;
 		}
 		else
 		{
-			gao(src);
-			for(int i = 1; i <= nt; i++)
-			{
-				sort(g[i].begin(), g[i].end());
-				int bg = g[i][0], ed = g[i][0];
-				if(g[i].size() == 1)
-				{
-					ans[i].push_back(make_pair(bg, ed + 1));
-				}
-				else
-				{
-					for(int j = 1; j < g[i].size(); j++)
-					{
-						if(g[i][j - 1] + 1 == g[i][j])
-						{
-							ed = g[i][j];
-						}
-						else
-						{
-							ans[i].push_back(make_pair(bg, ed + 1));
-							bg = ed = g[i][j];
-						}
-						if(j == g[i].size() - 1)
-							ans[i].push_back(make_pair(bg, ed + 1));
+			if(s != -1 && t != -1)
+				ret.push_back(s), ret.push_back(t + 1);
 
-					}
-				}
-				printf("%d", ans[i].size());
-				for(int j = 0; j < ans[i].size(); j++)
-					printf(" %d %d", ans[i][j].first, ans[i][j].second);
-				printf("\n");
+			s = t = -1;
+		}
+	}
+}
+
+bool bfs(int(*matrix)[MAX_TIME + MAX_FURNITURE + 2])
+{
+	int cur, next, size, i;
+	queue<int> q;
+
+	for(i = 0 ; i < MAX_TIME + MAX_FURNITURE + 2 ; i++)
+		dist[i] = INF;
+
+	dist[src] = 0;
+
+	q.push(src);
+
+	while(!q.empty() && dist[snk] == INF)
+	{
+		cur = q.front();
+		q.pop();
+
+		size = adj[cur].size();
+		for(i = 0; i < size; i++)
+		{
+			next = adj[cur][i];
+			if(dist[next] == INF && matrix[cur][next] > 0)
+			{
+				q.push(next);
+				dist[next] = dist[cur] + 1;
 			}
 		}
 	}
+
+	return (dist[snk] != INF);
+}
+
+int dfs(int(*matrix)[MAX_TIME + MAX_FURNITURE + 2], int cur, int flow)
+{
+	int size, ret, next;
+
+	if(!flow || cur == snk)
+		return flow;
+
+	size = adj[cur].size();
+	while(saved[cur] < size)
+	{
+		next = adj[cur][saved[cur]];
+		// If v did not find to on the bfs...
+		if(dist[next] == dist[cur] + 1)
+		{
+			ret = dfs(matrix, next, min(flow, matrix[cur][next]));
+
+			if(ret)
+			{
+				matrix[cur][next] -= ret;
+				matrix[next][cur] += ret;
+
+				return ret;
+			}
+		}
+
+		saved[cur]++;
+	}
+
+	return 0;
+}
+
+int dinic(int(*matrix)[MAX_TIME + MAX_FURNITURE + 2])
+{
+	int total, flow;
+
+	total = 0;
+
+	while(bfs(matrix))
+	{
+		memset(saved, 0, sizeof(saved));
+		while(flow = dfs(matrix, src, INF))
+			total += flow;
+	}
+
+	return total;
+}
+
+int main()
+{
+	int i, j, size;
+	bool result;
+
+	scanf("%d", &T);
+
+	src = 0;
+	snk = MAX_TIME + MAX_FURNITURE + 1;
+
+	while(T--)
+	{
+		memset(C, 0, sizeof(C));
+		for(i = 0 ; i < MAX_TIME + MAX_FURNITURE + 2 ; i++)
+			adj[i].clear();
+
+		ret.clear();;
+
+		scanf("%d %d", &M, &N);
+
+		for(i = 1 ; i < MAX_TIME ; i++)
+			addEdge(src, i, M);
+
+		for(i = 1 ; i <= N ; i++)
+		{
+			scanf("%d %d %d", &S, &W, &D);
+
+			for(j = S ; j < D ; j++)
+				addEdge(j, MAX_TIME + i, 1);
+
+			addEdge(MAX_TIME + i, snk, W);
+		}
+
+		dinic(C);
+
+		result = true;
+		for(i = 1 ; i <= N ; i++)
+		{
+			if(C[MAX_TIME + i][snk])
+			{
+				result = false;
+				break;
+			}
+		}
+
+		if(result)
+		{
+			for(i = 1 ; i <= N ; i++)
+			{
+				getTimeLine(i);
+				size = ret.size();
+				printf("%d", size / 2);
+				for(j = 0 ; j < size ; j++)
+					printf(" %d", ret[j]);
+				printf("\n");
+			}
+		}
+		else
+			printf("0\n");
+	}
+
 	return 0;
 }
