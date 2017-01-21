@@ -1,5 +1,5 @@
 /**
-*   @link   https://www.acmicpc.net/problem/9026
+*   @link   https://www.acmicpc.net/problem/8926
 *   @date   2016. 03. 04 00:17
 *   @author Sikurity
 *   @method Mathematics

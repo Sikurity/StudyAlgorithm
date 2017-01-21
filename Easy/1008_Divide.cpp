@@ -2,7 +2,7 @@
 *	@link	https://www.acmicpc.net/problem/1008
 *	@date	2015. 09. 29 00:20
 *	@author	Sikurity
-*	@method Simple Mathematics
+*	@method Just Easy
 */
 #include <stdio.h>
 

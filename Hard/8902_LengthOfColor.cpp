@@ -1,3 +1,10 @@
+/**
+*	@link	https://www.acmicpc.net/problem/8902
+*	@date	Unsolved
+*	@author	Sikurity
+*	@method HELP ME!!
+*/
+
 #define _CRT_NO_SECURE_WARNINGS
 
 #include <stdio.h>

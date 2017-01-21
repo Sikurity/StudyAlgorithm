@@ -4,7 +4,6 @@
 *	@author	Sikurity
 *	@method Simple Mathematics
 */
-
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
