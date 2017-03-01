@@ -2,7 +2,7 @@
  *	@link	https://www.acmicpc.net/problem/1780
  *	@date	2017. 02. 28
  *	@author	Sikurity
- *	@method Just Use DFS
+ *	@method Divide And Conquer By Using DFS
  */
 
 #include <stdio.h>

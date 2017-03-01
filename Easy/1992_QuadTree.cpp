@@ -2,7 +2,7 @@
  *	@link	https://www.acmicpc.net/problem/1992
  *	@date	2017. 02. 28
  *	@author	Sikurity
- *	@method Use STL String, DFS
+ *	@method Divide And Conquer By Using STL String, DFS
  */
 
 #include <stdio.h>
@@ -27,7 +27,7 @@ pair<int, string> algorithm(int len, pair<int, int> loc)
         cnt[0] = cnt[1] = 0;
         for(int i = 0 ; i < 2 ; i++ )
             for(int j = 0 ; j < 2 ; j++ )
-            {
+            {a
                 tmp[i][j] = algorithm(len/2, make_pair(loc.first + i * len/2, loc.second + j * len/2));
                 
                 if( tmp[i][j].first == 0 || tmp[i][j].first == 1 )
