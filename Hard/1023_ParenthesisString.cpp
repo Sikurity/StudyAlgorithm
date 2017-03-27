@@ -89,13 +89,9 @@ int main()
 	}
 	else
 	{
-		long long tmp = 1LL;
-		bin[0] = 1;
+		bin[0] = 1LL;
 		for(int i = 1 ; i <= N ; i++)
-		{
-			tmp = tmp << 1;
-			bin[i] = tmp;
-		}
+			bin[i] = bin[i - 1] << 1;
 
 		dfs(MAX_LEN);
 
