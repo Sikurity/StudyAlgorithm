@@ -3,3 +3,12 @@ main.h
 .DS_Store
 xcuserdata
 project.xcworkspace
+*.vcxproj
+*.filters
+*.user
+*.log
+*.lastbuildstate
+*.tlog
+*.obj
+*.idb
+*.pdb
