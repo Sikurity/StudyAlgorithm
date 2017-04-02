@@ -14,4 +14,7 @@ project.xcworkspace
 *.pdb
 *.sln
 *.db
+<<<<<<< HEAD
 Debug
+=======
+>>>>>>> 2d5da7469333a98f2a85f16f6a0eea99e2065b0a
