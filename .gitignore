@@ -12,3 +12,5 @@ project.xcworkspace
 *.obj
 *.idb
 *.pdb
+*.sln
+*.db
