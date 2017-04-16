@@ -30,8 +30,8 @@ int main()
 		M[K] = 1;
 		while(N > 0)
 		{
-			iter = M.end();
-			--iter;
+			if(M.size() > 0)
+				iter = M.end(), --iter;
 
 			if(iter->first & 1)
 			{
