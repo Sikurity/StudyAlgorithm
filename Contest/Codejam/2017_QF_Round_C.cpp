@@ -5,6 +5,8 @@
 *	@method Greedy Algorithm : Divide And Solve A Big Partition
 */
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <map>
 
@@ -24,14 +26,16 @@ int main()
 	fscanf(fpIn, "%d", &T);
 	for(int t = 1 ; t <= T ; t++)
 	{
-		printf("%d\n", t);
 		fscanf(fpIn, "%lld %lld", &K, &N);
 
+		M.clear();
 		M[K] = 1;
 		while(N > 0)
 		{
 			if(M.size() > 0)
 				iter = M.end(), --iter;
+			else
+				break;
 
 			if(iter->first & 1)
 			{
@@ -50,7 +54,7 @@ int main()
 			if(N <= 0)
 			{
 				L = iter->first / 2;
-				R = iter->first / 2 - !(iter->first & 1);
+				R = iter->first / 2 - (~iter->first & 1);
 			}
 
 			M.erase(iter);
