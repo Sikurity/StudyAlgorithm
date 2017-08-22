@@ -5,7 +5,7 @@
 
 **(답지를 보는 것은 장기적으로 알고리즘 공부에 악영향을 미칠 수 있습니다)**
 
-## Scheduled to resume on August 4
+## Scheduled to resume on September
 ### 아직 공부하지 못한 미지의 알고리즘
  * 문자열 알고리즘
  * 그리디 알고리즘
