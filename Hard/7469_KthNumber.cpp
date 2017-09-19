@@ -14,7 +14,7 @@
 
 using namespace std;
 
-int n, m, compressed[MAX_LEN + 1], revr[MAX_LEN + 1];
+int N, M, compressed[MAX_LEN + 1], revr[MAX_LEN + 1];
 
 vector<int> inputs;
 vector<int> sorted;
@@ -24,7 +24,7 @@ map<int, int> link;
 vector<int> segTree[262145];
 vector<int> merged;
 
-vector<int> build(int l = 1, int r = n, int cur = 1)
+vector<int> build(int l = 1, int r = N, int cur = 1)
 {
     vector<int> ret;
     
@@ -63,7 +63,7 @@ vector<int> build(int l = 1, int r = n, int cur = 1)
     return segTree[cur] = ret;
 }
 
-void query(int l, int r, int start = 1, int end = n, int cur = 1)
+void query(int l, int r, int start = 1, int end = N, int cur = 1)
 {
     if( end < l || r < start )
         return;
@@ -123,8 +123,8 @@ int algorithm(int i, int j, int k, int min, int max)
 int main()
 {
     int i, j, k, num;
-    scanf("%d %d", &n, &m);
-    for(int i = 1 ; i <= n ; i++ )
+    scanf("%d %d", &N, &M);
+    for(int i = 1 ; i <= N ; i++ )
     {
         scanf("%d", &num);
         inputs.push_back(num);
@@ -132,20 +132,20 @@ int main()
     
     sorted = inputs;
     sort(sorted.begin(), sorted.end());
-    for(i = 0 ; i < n ; i++)
+    for(i = 0 ; i < N ; i++)
     {
         link[sorted[i]] = i + 1;
         revr[i+1] = sorted[i];
     }
     
-    for(int i = 1 ; i <= n ; i++ )
+    for(int i = 1 ; i <= N ; i++ )
         compressed[i] = link[inputs[i - 1]];
     
     build();
-    while(m--)
+    while(M--)
     {
         scanf("%d %d %d", &i, &j, &k);
-        printf("%d\n", revr[algorithm(i, j, k, 1, n)]);
+        printf("%d\n", revr[algorithm(i, j, k, 1, N)]);
     }
     
     return 0;

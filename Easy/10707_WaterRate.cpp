@@ -9,16 +9,16 @@
 
 #include <stdio.h>
 
-int	A, B, C, D, P;
+int	A, B, C, gcd, P;
 
 int main()
 {
 	int x, y;
 
-	scanf("%d %d %d %d %d", &A, &B, &C, &D, &P);
+	scanf("%d %d %d %d %d", &A, &B, &C, &gcd, &P);
 
 	x = A * P;
-	y = B + (P > C ? (P - C) * D : 0);
+	y = B + (P > C ? (P - C) * gcd : 0);
 
 	printf("%d\n", x <= y ? x : y);
 

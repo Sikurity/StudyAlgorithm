@@ -15,7 +15,7 @@ typedef long long int lli;
 
 using namespace std;
 
-lli n;
+lli N;
 
 bool checks[SQRT_MAX_NUM + 1];
 
@@ -37,7 +37,7 @@ lli GetInExcludeNum(int size, int index, lli cur)
         }
     }
     else
-        ret = n / cur;
+        ret = N / cur;
     
     return ret;
 }
@@ -48,8 +48,8 @@ int main()
     int root, primeSize;
     bool flag;
     
-    scanf("%lld", &n);
-    root = sqrt(n);
+    scanf("%lld", &N);
+    root = sqrt(N);
     for(int i = 2 ; i <= root ; i++ )
     {
         if(checks[i])
@@ -69,7 +69,7 @@ int main()
             primes.push_back(i);
     }
     
-    num = n;
+    num = N;
     primeSize = (int)primes.size();
     for(int i = 0 ; i < primeSize && primes[i] < num ; i++ )
     {
@@ -93,7 +93,7 @@ int main()
         flag = !flag;
     }
     
-    printf("%lld", n - ret);
+    printf("%lld", N - ret);
     
     return 0;
 }

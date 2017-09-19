@@ -16,14 +16,14 @@ using namespace std;
 int N;
 multiset<int> S;
 int A[50];
-int D[1001];
+int gcd[1001];
 
 int main()
 {
 	multiset<int>::iterator target, iter;
 	int i, j;
 
-	memset(D, 0, sizeof(D));
+	memset(gcd, 0, sizeof(gcd));
 
 	scanf("%d", &N);
 
@@ -46,7 +46,7 @@ int main()
 			j++;
 		}
 
-		printf("%d ", j + D[A[i]]++);
+		printf("%d ", j + gcd[A[i]]++);
 	}
 
 	printf("\n");

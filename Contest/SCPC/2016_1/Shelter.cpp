@@ -15,7 +15,7 @@ int T, N, M, K;
 set<int> S;
 vector<map<int, int> > E;
 
-unsigned long long D[2001][2001], R[2];
+unsigned long long gcd[2001][2001], R[2];
 
 int main()
 {
@@ -58,7 +58,7 @@ int main()
 		{
 			for(i = 0; i <= N; i++)
 				for(j = 0; j <= N; j++)
-					D[i][j] = E[i][j];
+					gcd[i][j] = E[i][j];
 
 			for(k = 1; k <= N; k++)
 			{
@@ -66,9 +66,9 @@ int main()
 				{
 					for(j = 1; j <= N; j++)
 					{
-						if(D[i][j] > D[i][k] + D[k][j])
+						if(gcd[i][j] > gcd[i][k] + gcd[k][j])
 						{
-							D[i][j] = D[i][k] + D[k][j];
+							gcd[i][j] = gcd[i][k] + gcd[k][j];
 							E[i][j] = k;
 						}
 					}
@@ -84,9 +84,9 @@ int main()
 				{
 					if(S.find(j) != S.end())
 					{
-						if(ret > D[i][j])
+						if(ret > gcd[i][j])
 						{
-							ret = D[i][j];
+							ret = gcd[i][j];
 							tmp = j;
 						}
 					}

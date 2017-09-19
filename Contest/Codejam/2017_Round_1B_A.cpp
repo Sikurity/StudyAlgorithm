@@ -4,7 +4,7 @@
 
 using namespace std;
 
-int T, D, N, K, S;
+int T, gcd, N, K, S;
 
 int main()
 {
@@ -17,12 +17,12 @@ int main()
 	for (int t = 1; t <= T; t++)
 	{
 		result = 1.79769e+308;
-		fscanf(in, "%d %d", &D, &N);
+		fscanf(in, "%d %d", &gcd, &N);
 		while (N--)
 		{
 			fscanf(in, "%d %d", &K, &S);
 
-			tmp = ((double)D / (D - K)) * S;
+			tmp = ((double)gcd / (gcd - K)) * S;
 			if (tmp < result)
 				result = tmp;
 		}

@@ -30,7 +30,7 @@ using namespace std;
 //  int cost;
 //} Edge;
 
-int T, M, N, S, W, D, C[MAX_TIME + MAX_FURNITURE + 2][MAX_TIME + MAX_FURNITURE + 2];
+int T, M, N, S, W, gcd, C[MAX_TIME + MAX_FURNITURE + 2][MAX_TIME + MAX_FURNITURE + 2];
 int saved[MAX_TIME + MAX_FURNITURE + 2], dist[MAX_TIME + MAX_FURNITURE + 2];
 int src, snk;
 
@@ -175,9 +175,9 @@ int main()
 
 		for(i = 1 ; i <= N ; i++)
 		{
-			scanf("%d %d %d", &S, &W, &D);
+			scanf("%d %d %d", &S, &W, &gcd);
 
-			for(j = S ; j < D ; j++)
+			for(j = S ; j < gcd ; j++)
 				addEdge(j, MAX_TIME + i, 1);
 
 			addEdge(MAX_TIME + i, snk, W);

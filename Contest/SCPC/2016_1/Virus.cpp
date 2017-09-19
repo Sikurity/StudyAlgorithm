@@ -7,7 +7,7 @@
 using namespace std;
 
 set<int> P;
-set<int> D;
+set<int> gcd;
 
 vector< set<int> > E;
 
@@ -21,9 +21,9 @@ bool isPossible()
 	set<int>::iterator iter, selEnd, deleted, end;
 	int i, size;
 
-	end = D.end();
+	end = gcd.end();
 
-	for(deleted = D.begin(); deleted != end; deleted++)
+	for(deleted = gcd.begin(); deleted != end; deleted++)
 		linked[*deleted] = -1;
 
 	for(i = 1 ; i <= N ; i++)
@@ -32,7 +32,7 @@ bool isPossible()
 			continue;
 
 		selEnd = E[i].end();
-		for(deleted = D.begin(); deleted != end; deleted++)
+		for(deleted = gcd.begin(); deleted != end; deleted++)
 		{
 			if(E[i].find(*deleted) != selEnd)
 				linked[i]--;
@@ -76,13 +76,13 @@ bool Infect(int n, int cur)
 			if(iter == P.end())
 				return false;
 
-			pb = D.insert(cur);
+			pb = gcd.insert(cur);
 			P.erase(iter++);
 
 			if(iter == P.end())
 			{
 				P.insert(cur);
-				D.erase(pb.first);
+				gcd.erase(pb.first);
 
 				return false;
 			}
@@ -93,7 +93,7 @@ bool Infect(int n, int cur)
 				return true;
 
 			P.insert(cur);
-			D.erase(pb.first);
+			gcd.erase(pb.first);
 
 			cur = next;
 		}
@@ -109,7 +109,7 @@ bool Infect(int n, int cur)
 			if(iter == P.end())
 				return false;
 
-			pb = D.insert(cur);
+			pb = gcd.insert(cur);
 			P.erase(iter++);
 
 			if(isPossible())
@@ -118,7 +118,7 @@ bool Infect(int n, int cur)
 			Restore();
 
 			P.insert(cur);
-			D.erase(pb.first);
+			gcd.erase(pb.first);
 
 			if(iter == P.end())
 				break;
@@ -186,7 +186,7 @@ int main()
 					if(Infect(i, cur))
 						break;
 
-					D.clear();
+					gcd.clear();
 				}
 			}
 
@@ -194,11 +194,11 @@ int main()
 				R = N * (N + 1) / 2;
 			else
 			{
-				end = D.end();
-				for(iter = D.begin() ; iter != end ; iter++)
+				end = gcd.end();
+				for(iter = gcd.begin() ; iter != end ; iter++)
 					R += *iter;
 
-				D.clear();
+				gcd.clear();
 			}
 		}
 		//}

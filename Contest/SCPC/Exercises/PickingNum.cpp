@@ -7,7 +7,7 @@ using namespace std;
 
 unsigned int T, N, tmp;
 
-map<int, BOOL> m;
+map<int, BOOL> M;
 
 int main()
 {
@@ -27,10 +27,10 @@ int main()
 		for(i = 0 ; i < N ; i++)
 		{
 			scanf("%u", &tmp);
-			m[tmp] = m[tmp] ? FALSE : TRUE;
+			M[tmp] = M[tmp] ? FALSE : TRUE;
 		}
 
-		for(it = m.begin() ; it != m.end() ; it++)
+		for(it = M.begin() ; it != M.end() ; it++)
 		{
 			if(it->second)
 				result ^= it->first;
@@ -38,7 +38,7 @@ int main()
 
 		printf("Case #%u\n%u\n", j++, result);
 
-		m.clear();
+		M.clear();
 	}
 
 

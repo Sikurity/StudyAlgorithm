@@ -17,14 +17,14 @@ using namespace std;
 
 vector<int> Coins;
 
-int DP[10001], n, k;
+int DP[10001], N, k;
 
 int main()
 {
 	int num;
 	
-	scanf("%d %d", &n, &k);
-	for(int i = 0 ; i < n ; i++)
+	scanf("%d %d", &N, &k);
+	for(int i = 0 ; i < N ; i++)
 	{
 		scanf("%d", &num);
 		Coins.push_back(num);
@@ -33,7 +33,7 @@ int main()
 	sort(Coins.begin(), Coins.end());
 
 	DP[0] = 1;
-	for(int i = 0 ; i < n ; i++)
+	for(int i = 0 ; i < N ; i++)
 	{
 		for(int j = 0 ; j <= k ; j++)
 		{

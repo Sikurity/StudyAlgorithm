@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 
-int t, n, b[32], i, j, k, answer, tmp, div, mod;
+int t, N, b[32], i, j, k, answer, tmp, div, mod;
 
 void algorithm();
 
@@ -12,7 +12,7 @@ int main()
 
 	while (t--)
 	{
-		scanf("%d", &n);
+		scanf("%d", &N);
 
 		algorithm();
 
@@ -28,10 +28,10 @@ void algorithm()
 	{
 		j = 0;
 
-		while (pow((double)i, j) <= n)
+		while (pow((double)i, j) <= N)
 			j++;
 
-		tmp = n;
+		tmp = N;
 
 		for (k = 0; k < j; k++)
 		{

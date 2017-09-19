@@ -20,7 +20,7 @@ int nLength;
 int nRound;
 int remainRobot;
 
-int n;
+int N;
 
 char sOrders[MAX_ROBOT_NUM][MAX_CASE_LENGTH + 1];
 BOOL lossRobot[MAX_ROBOT_NUM];
@@ -45,7 +45,7 @@ int main()
 
 		nRound = nLength = strlen(sOrders[0]);
 
-		n = 0;
+		N = 0;
 
 		while( algorithm() );
 
@@ -74,13 +74,13 @@ BOOL algorithm()
 	{
 		if( lossRobot[i] )
 		{
-			if( sOrders[i][n] == 'R' )
+			if( sOrders[i][N] == 'R' )
 				R = TRUE;
 
-			else if( sOrders[i][n] == 'S' )
+			else if( sOrders[i][N] == 'S' )
 				S = TRUE;
 
-			else if( sOrders[i][n] == 'P' )
+			else if( sOrders[i][N] == 'P' )
 				P = TRUE;
 		}
 	}
@@ -89,7 +89,7 @@ BOOL algorithm()
 
 	if( result == 1 || result == 3 )
 	{
-		n++;
+		N++;
 		return TRUE;
 	}
 	else
@@ -99,7 +99,7 @@ BOOL algorithm()
 			if( !R )
 			{
 				for( int i = 0 ; i < nRobot ; i++ )
-					if( lossRobot[i] && sOrders[i][n] == 'P' )
+					if( lossRobot[i] && sOrders[i][N] == 'P' )
 					{
 						remainRobot--;
 						lossRobot[i] = FALSE;
@@ -118,7 +118,7 @@ BOOL algorithm()
 			else if( !S )
 			{
 				for( int i = 0 ; i < nRobot ; i++ )
-					if( lossRobot[i] && sOrders[i][n] == 'R' )
+					if( lossRobot[i] && sOrders[i][N] == 'R' )
 					{
 						remainRobot--;
 						lossRobot[i] = FALSE;
@@ -137,7 +137,7 @@ BOOL algorithm()
 			else if( !P )
 			{
 				for( int i = 0 ; i < nRobot ; i++ )
-					if( lossRobot[i] && sOrders[i][n] == 'S' )
+					if( lossRobot[i] && sOrders[i][N] == 'S' )
 					{
 						remainRobot--;
 						lossRobot[i] = FALSE;
@@ -156,6 +156,6 @@ BOOL algorithm()
 		}
 	}
 
-	++n;
+	++N;
 	return TRUE;
 }
