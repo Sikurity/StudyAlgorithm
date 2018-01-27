@@ -1,3 +1,10 @@
+/**
+ *    @link     https://www.acmicpc.net/problem/2193
+ *    @date     2018. 01. 11
+ *    @author   Sikurity
+ *    @method   Simple Dynamic Programming
+ */
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
 

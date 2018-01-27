@@ -1,106 +1,77 @@
 /**
-*	@link	https://www.acmicpc.net/problem/11066
-*	@date	2016. 03. 22 15:30
-*	@author	Sikurity
-*	@method Dynamic Programming
-*/
+ *    @link    https://www.acmicpc.net/problem/11066
+ *    @date    2018 . 01. 27
+ *    @author  Sikurity
+ *    @method  Dynamic Programming + Knuth Optimization[O(N^3) => O(N^2)]
+ */
 
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
-#include <string.h>
 
 #define INF 0x7FFFFFFF
 
+#define MAX_PARTS_NUM 3000
+
+typedef long long LL;
+
 int T, K, R;
 
-int F[501];
-int DP[501][501];
-int S[501][501];
+int subtotal[MAX_PARTS_NUM + 1];
+int input_time[MAX_PARTS_NUM + 1];
+int dp_table[MAX_PARTS_NUM + 1][MAX_PARTS_NUM + 1];
+int idx[MAX_PARTS_NUM + 1][MAX_PARTS_NUM + 1];
 
-int parenthesization();
-int algorithm(int, int);
-int sum(int, int);
+int parenthesize();
+int tabulate(int, int);
 
 int main()
 {
-	int i;
-
-	scanf("%d", &T);
-
-	while(T--)
-	{
-		scanf("%d", &K);
-
-		memset(F, 0, sizeof(F));
-		memset(S, 0, sizeof(S));
-		memset(DP, 0, sizeof(DP));
-
-		for(i = 1 ; i <= K ; i++)
-		{
-			scanf("%d", &F);
-			F[i] = F[0];
-		}
-
-		F[0] = 0;
-
-		R = parenthesization();
-
-		printf("%d\n", R);
-	}
-
-	return 0;
+    scanf("%d", &T);
+    while (T--) {
+        
+        scanf("%d", &K);
+        for(int i = 1 ; i <= K ; i++) {
+            
+            dp_table[i - 1][i] = 0; // initialize
+            idx[i - 1][i] = i;      // initialize
+            
+            scanf("%d", &input_time[i]);
+            subtotal[i] = subtotal[i - 1] + input_time[i];
+        }
+        
+        R = parenthesize();
+        
+        printf("%d\n", R);
+    }
+    
+    return 0;
 }
 
-int sum(int m, int n)
+int parenthesize()
 {
-	int i;
-
-	if(m > n)
-		return 0;
-
-	if(S[m][n] > 0)
-		return S[m][n];
-
-	for(i = m ; i <= n ; i++)
-		S[m][n] += F[i];
-
-	return S[m][n];
+    for(int d = 2 ; d <= K ; d++)
+        for(int i = 0 ; i + d <= K ; i++)
+            dp_table[i][i + d] = tabulate(i, i + d);
+    
+    return dp_table[0][K];
 }
 
-int algorithm(int m, int n)
+int tabulate(int m, int n)
 {
-	int r, t, i;
-
-	r = INF;
-
-	for(i = m ; i < n ; i++)
-	{
-		t = DP[m][i] + DP[i + 1][n] + sum(m, n);
-
-		if(t < r)
-			r = t;
-	}
-
-	return r;
+    int r = INF;
+    
+    for(int i = idx[m][n - 1] ; i <= idx[m + 1][n] ; i++) {
+        
+        int t = dp_table[m][i] + dp_table[i][n] + subtotal[n] - subtotal[m];
+        if(t < r) {
+            idx[m][n] = i;
+            r = t;
+        }
+    }
+    
+    return r;
 }
 
-int parenthesization()
-{
-	int i, j, k, n;
 
-	n = K;
 
-	for(k = 2 ; k <= n ; k++)
-	{
-		i = 1;
-
-		for(j = k ; j <= n ; j++)
-		{
-			DP[i][j] = algorithm(i, j);
-			i++;
-		}
-	}
-
-	return DP[1][K];
-}

@@ -1,3 +1,10 @@
+/**
+ *    @link     https://www.acmicpc.net/problem/1025
+ *    @date     2018. 01. 13
+ *    @author   Sikurity
+ *    @method   Simple Simulation
+ */
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
