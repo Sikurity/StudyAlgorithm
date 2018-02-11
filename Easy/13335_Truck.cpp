@@ -74,7 +74,7 @@ int main()
 
 			if (waitingTruck.weight + totalWeight <= L) {
 				trucks.pop();
-
+				
 				waitingTruck.pos++;
 				bridge.push_back(waitingTruck);
 
