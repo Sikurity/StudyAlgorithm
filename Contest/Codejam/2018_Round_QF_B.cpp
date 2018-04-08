@@ -1,42 +1,48 @@
 #include <cstdio>
-#include <cmath>
+#include <cstring>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-const long double PI = 3.14159265358979323846264338327950288;
-const long double R2 = 1.41421356237309504880168872420969808;
-
-int T;
+int T, N, result;
 
 int main() {
-    
-    long double llf;
+    int num;
     
     scanf("%d", &T);
     for(int t = 1; t <= T; t++) {
+        vector<int> even, odd;
         
-        scanf("%Lf", &llf);
+        scanf("%d", &N);
         
-        long double theta = acos(llf / R2) - (PI / 4.0);
-        printf("Case #%d:\n", t);
-        
-        long double sinTheta = sin(theta);
-        long double cosTheta = cos(theta);
-        
-        if(abs(cosTheta) < 1.0e-6) {
-            printf("0 %.16Lf 0\n", sinTheta / 2.0);
-            printf("%.16Lf 0 0\n", -sinTheta / 2.0);
+        for(int i = 0; i < N; i++) {
+            scanf("%d", &num);
             
-        } else if(abs(sinTheta) < 1.0e-6) {
-            printf("%.16Lf 0 0\n", cosTheta / 2.0);
-            printf("0 %.16Lf 0\n", cosTheta / 2.0);
-        } else {
-            printf("%.16Lf %.16Lf 0\n", cosTheta / 2.0, sinTheta / 2.0);
-            printf("%.16Lf %.16Lf 0\n", -sinTheta / 2.0, cosTheta / 2.0);
+            if(i & 1)
+                odd.push_back(num);
+            else
+                even.push_back(num);
         }
-        printf("0 0 0.5\n");
         
+        sort(odd.begin(), odd.end());
+        sort(even.begin(), even.end());
+        
+        result = -1;
+        for(int i = 1; i < N; i++) {
+            if(L[i - 1] > L[i]) {
+                result = i - 1;
+                break;
+            }
+        }
+        
+        printf("Case #%d: ", t);
+        if(result > -1)
+            printf("%d\n", result);
+        else
+            printf("OK\n");
     }
     
     return 0;
 }
+

@@ -1,64 +1,43 @@
 #include <cstdio>
-#include <cstring>
 #include <cmath>
 
-const int MAX_P_LENGTH = 30;
+using namespace std;
 
-int D, T, result;
-char P[MAX_P_LENGTH + 1];
-int sCounts[MAX_P_LENGTH + 1];
+const long double PI = 3.14159265358979323846264338327950288;
+const long double R2 = 1.41421356237309504880168872420969808;
+
+int T;
 
 int main() {
-    scanf("%d", &T);
     
+    long double llf;
+    
+    scanf("%d", &T);
     for(int t = 1; t <= T; t++) {
-        memset(sCounts, 0, sizeof(sCounts));
-        scanf("%d %s", &D, P);
         
-        long long dmg = 0, charged = 1;
-        int i = 0;
-        int c_cnt = 0, s_cnt = 0;
-        while(P[i]) {
-            if (P[i] == 'C') {
-                charged <<= 1;
-                c_cnt++;
-            }
-            else {
-                sCounts[c_cnt]++;
-                dmg += charged;
-                s_cnt++;
-            }
-            
-            i++;
-        }
+        scanf("%Lf", &llf);
         
-        printf("Case #%d: ", t);
-        if(dmg <= D)
-            printf("0\n");
-        else {
+        long double theta = acos(llf / R2) - (PI / 4.0);
+        printf("Case #%d:\n", t);
+        
+        long double sinTheta = sin(theta);
+        long double cosTheta = cos(theta);
+        
+        if(abs(cosTheta) < 1.0e-6) {
+            printf("0 %.16Lf 0\n", sinTheta / 2.0);
+            printf("%.16Lf 0 0\n", -sinTheta / 2.0);
             
-            if(D < s_cnt)
-                printf("IMPOSSIBLE\n");
-            else {
-                result = 0;
-                
-                long long diff = dmg - D;
-                while(diff > 0) {
-                    for(int i = c_cnt; i >= 1; i--) {
-                        
-                        if(sCounts[i]) {
-                            sCounts[i]--;
-                            sCounts[i - 1]++;
-                            diff -= (long long)powl(2.0, i - 1);
-                            
-                            result++;
-                            break;
-                        }
-                    }
-                }
-                
-                printf("%d\n", result);
-            }
+        } else if(abs(sinTheta) < 1.0e-6) {
+            printf("%.16Lf 0 0\n", cosTheta / 2.0);
+            printf("0 %.16Lf 0\n", cosTheta / 2.0);
+        } else {
+            printf("%.16Lf %.16Lf 0\n", cosTheta / 2.0, sinTheta / 2.0);
+            printf("%.16Lf %.16Lf 0\n", -sinTheta / 2.0, cosTheta / 2.0);
         }
+        printf("0 0 0.5\n");
+        
     }
+    
+    return 0;
 }
+
