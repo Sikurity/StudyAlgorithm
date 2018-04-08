@@ -1,124 +1,218 @@
 /**
 *	@link	https://www.acmicpc.net/problem/10446
-*	@date	2016. 03. 09 00:06
+*	@date	2018. 04. 09
 *	@author	Sikurity
-*	@method Simple Simulation
+*	@method Vizing's Theorem - Misra & Gries Edge Coloring Algorithm
 */
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include <stdio.h>
-#include <algorithm>
+#include <cstdio>
+#include <cstring>
 #include <vector>
-#include <utility>
-#include <string.h>
+#include <set>
+#include <algorithm>
 
-int T, M, N, K;
+const int N = 444;
 
-std::pair<int, int> P[100000];
-std::pair<int, int> S[445][444];
-std::vector<int> sz;
-std::vector<int> num;
+using namespace std;
 
-int R[100000];
+using Vertex = int;
+using Edge = pair<Vertex, Vertex>;
+using VertexVector = vector<Vertex>;
+using VertexIterator = VertexVector::iterator;
 
-void init();
-bool isPossible();
+using VertexSet = set<Vertex>;
 
-int main()
-{
-	std::vector<int>::iterator iter;
-	int i, a, b;
-	scanf("%d", &T);
+int graph[N + 1][N + 1];
+vector<int> edges[N + 1];
+vector<int> V2C[N + 1][N + 2];
 
-	while(T--)
-	{
-		scanf("%d %d", &M, &N);
-
-		init();
-
-		for(i = 1; i <= N; i++)
-		{
-			scanf("%d %d", &a, &b);
-			P[i] = std::pair<int, int>(a, b);
-
-			num[a]++;
-			num[b]++;
-		}
-
-		iter = std::max_element(num.begin(), num.end());
-		K = *iter + 1;
-
-		if(isPossible())
-		{
-			for(i = 1; i <= N; i++)
-				printf("%d %d %d\n", P[i].first, P[i].second, R[i]);
-		}
-		else
-			printf("0\n");
-	}
+bool is_free(Vertex v, int color) {
+    if (color <= 0)
+        return false;
+    
+    return V2C[v][color].empty();
 }
 
-void init()
-{
-	sz.clear();
-	sz.resize(445);
-
-	num.clear();
-	num.resize(M + 1);
-
-	memset(R, 0, sizeof(R));
-
-	return;
+VertexVector maximal_fan(Vertex x, Vertex y) {
+    VertexVector fan;
+    VertexSet vertices;
+    
+    fan.push_back(y);
+    vertices.insert(y);
+    
+    bool extended = true;
+    while(extended) {
+        extended = false;
+        
+        for (auto &v : edges[x]) {
+            
+            if (is_free(fan.back(), graph[x][v]) &&
+                vertices.find(v) == vertices.end()) {
+                
+                fan.push_back(v);
+                vertices.insert(v);
+                extended = true;
+            }
+        }
+    }
+    
+    return fan;
 }
 
-bool isPossible()
-{
-	int i, j, slot, size, start;
+int find_free_color(Vertex v) {
+    
+    int color = 1;
+    while (!is_free(v, color))
+        color++;
+    
+    return color;
+}
 
-	for(i = 1; i <= K; i++)
-	{
-		S[i][1] = P[i];
-		sz[i]++;
+void invert_cd_path(Vertex prev, Vertex cur, int c, int d) {
+    
+    bool flag = true;
+    while(flag) {
+        flag = false;
+        
+        for (auto &next : V2C[cur][d]) {
+            if ( prev != next) {
+                int tmp = c;
+                c = d;
+                d = tmp;
+                
+                prev = cur;
+                cur = next;
+                
+                if(graph[prev][cur]) {
+                    auto &&iter = find(V2C[prev][graph[prev][cur]].begin(), V2C[prev][graph[prev][cur]].end(), cur);
+                    if(iter != V2C[prev][graph[prev][cur]].end())
+                        V2C[prev][graph[prev][cur]].erase(iter);
+                }
+                if(graph[cur][prev]) {
+                    auto &&iter = find(V2C[cur][graph[cur][prev]].begin(), V2C[cur][graph[cur][prev]].end(), prev);
+                    if(iter != V2C[cur][graph[cur][prev]].end())
+                        V2C[cur][graph[cur][prev]].erase(iter);
+                }
+                
+                graph[prev][cur] = graph[cur][prev] = d;
+                
+                V2C[prev][d].push_back(cur);
+                V2C[cur][d].push_back(prev);
+                
+                flag = true;
+                break;
+            }
+        }
+    }
+}
 
-		R[i] = i;
-	}
+void rotate_fan(Vertex x, VertexIterator begin, VertexIterator end) {
+    if (begin == end)
+        return;
+    
+    int prev_idx = *begin;
+    
+    begin++;
+    while(begin != end) {
+        int cur_idx = *begin;
+        
+        if(graph[prev_idx][x]) {
+            auto &&iter = find(V2C[prev_idx][graph[prev_idx][x]].begin(), V2C[prev_idx][graph[prev_idx][x]].end(), x);
+            if( iter != V2C[prev_idx][graph[prev_idx][x]].end())
+                V2C[prev_idx][graph[prev_idx][x]].erase(iter);
+        }
+        if(graph[x][prev_idx]) {
+            auto &&iter = find(V2C[x][graph[x][prev_idx]].begin(), V2C[x][graph[x][prev_idx]].end(), prev_idx);
+            if(iter != V2C[x][graph[x][prev_idx]].end())
+                V2C[x][graph[x][prev_idx]].erase(iter);
+        }
+        
+        
+        graph[prev_idx][x] = graph[x][prev_idx] = graph[x][cur_idx];
+        
+        V2C[prev_idx][graph[x][cur_idx]].push_back(x);
+        V2C[x][graph[x][cur_idx]].push_back(prev_idx);
+        
+        prev_idx = cur_idx;
+        
+        begin++;
+    }
+}
 
-	slot = 1;
+struct Checker {
+    int d;
+    bool operator()(Vertex v) {
+        return is_free(v, d);
+    }
+    
+    Checker(int d): d(d) {}
+};
 
-	for(i = K + 1; i <= N; i++)
-	{
-		size = sz[slot];
-		start = slot;
+void color_edge(Vertex x, Vertex y) {
+    VertexVector &&fan = maximal_fan(x, y);
+    
+    int c = find_free_color(x);
+    int d = find_free_color(fan.back());
+    
+    invert_cd_path(NULL, x, c, d);
+    
+    VertexIterator w = find_if(fan.begin(), fan.end(), Checker(d));
+    rotate_fan(x, fan.begin(), w + 1);
+    
+    if(graph[x][*w]) {
+        auto &&iter = find(V2C[x][graph[x][*w]].begin(), V2C[x][graph[x][*w]].end(), *w);
+        if (iter != V2C[x][graph[x][*w]].end())
+            V2C[x][graph[x][*w]].erase(iter);
+    }
+    if(graph[*w][x]) {
+        auto &&iter = find(V2C[*w][graph[*w][x]].begin(), V2C[*w][graph[*w][x]].end(), x);
+        if(iter != V2C[*w][graph[*w][x]].end())
+            V2C[*w][graph[*w][x]].erase(iter);
+    }
+    
+    graph[x][*w] = graph[*w][x] = d;
+    
+    V2C[*w][d].push_back(x);
+    V2C[x][d].push_back(*w);
+}
 
-		while(true)
-		{
-			for(j = 1; j <= size; j++)
-			{
-				if(S[slot][j].first == P[i].first || S[slot][j].first == P[i].second || S[slot][j].second == P[i].first || S[slot][j].second == P[i].second)
-				{
-					slot++;
-					slot = slot % K;
+constexpr int MAX_M(int n) { return n * (n - 1) / 2; };
+int a[MAX_M(N)], b[MAX_M(N)];
 
-					if(slot == 0)
-						slot = K;
-
-					if(slot == start)
-						return false;
-
-					break;
-				}
-			}
-
-			if(j == (size + 1))
-			{
-				S[slot][j] = P[i];
-				sz[slot]++;
-
-				R[i] = slot;
-				break;
-			}
-		}
-	}
-	return true;
+int main() {
+    
+    int T, n, m;
+    
+    scanf("%d", &T);
+    
+    while (T--) {
+        scanf("%d %d", &n, &m);
+        
+        memset(graph, 0, sizeof(graph));
+        for(int i = 0; i <= n; i++) {
+            edges[i].clear();
+            for(int j = 0; j <= n; j++)
+                V2C[i][j].clear();
+        }
+        
+        for(int i = 0; i < m; i++) {
+            scanf("%d %d", &a[i], &b[i]);
+            edges[a[i]].push_back(b[i]);
+            edges[b[i]].push_back(a[i]);
+        }
+        
+        for (int i = 0; i < m; ++i) {
+            if(graph[a[i]][b[i]])
+                continue;
+            
+            color_edge(a[i], b[i]);
+        }
+        
+        for (int i = 0; i < m; ++i)
+            printf("%d %d %d\n", a[i], b[i], graph[a[i]][b[i]]);
+    }
+    
+    return 0;
 }
