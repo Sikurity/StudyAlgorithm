@@ -1,39 +1,40 @@
 /**
 *	@link	https://www.acmicpc.net/problem/1005
-*	@date	2015. 04. 10 21:46
+*	@date	2017. 04. 15
 *	@author	Sikurity
-*	@method DFS + Dynamic Programming
+*	@method DFS + Dynamic Programming / Topological Sorting
 */
+
 #define _CRT_SECURE_NO_WARNINGS
 
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+#include <vector>
 
-typedef enum BOOL { FALSE, TRUE } BOOL;
+using std::vector;
+
+const int MAX_BUILDING_NUM = 1000;
 
 int T, R, N, K, W;
-int NT[1001];
-int DP[1001];
-BOOL M[1001][1001];
+int NT[MAX_BUILDING_NUM + 1];
+int DP[MAX_BUILDING_NUM + 1];
 
-int algorithm(int cur)
-{
-	int i, ret = 0;
+vector<int> build[MAX_BUILDING_NUM + 1];
 
-	if (DP[cur])
-		ret = DP[cur];
-	else
-	{
-		for (i = 1; i <= N; i++)
-		{
-			if (M[cur][i] && ret < algorithm(i))
-				ret = algorithm(i);
-		}
+int algorithm(int cur) {
+	int &ret = DP[cur];
 
-		ret += NT[cur];
+	if (ret > -1)
+		return ret;
 
-		DP[cur] = ret;
+	ret = 0;
+	for (auto &next : build[cur]) {
+		int tmp = algorithm(next);
+		if (ret < tmp)
+			ret = tmp;
 	}
+
+	ret += NT[cur];
 
 	return ret;
 }
@@ -44,21 +45,19 @@ int main()
 
 	scanf("%d", &T);
 
-	while (T--)
-	{
-		memset(M, FALSE, sizeof(M));
-		memset(DP, 0, sizeof(DP));
+	while (T--) {
+		memset(DP, -1, sizeof(DP));
 
 		scanf("%d %d", &N, &K);
 
-		for (i = 1; i <= N; i++)
+		for (i = 1; i <= N; i++) {
+			build[i].clear();
 			scanf("%d", &NT[i]);
+		}
 
-		while (K--)
-		{
+		while (K--) {
 			scanf("%d %d", &x, &y);
-
-			M[y][x] = TRUE;
+			build[y].push_back(x);
 		}
 
 		scanf("%d", &W);
