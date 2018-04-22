@@ -1,73 +1,62 @@
-/**
-*	@link	https://www.acmicpc.net/problem/1005
-*	@date	2015. 04. 10 21:46
-*	@author	Sikurity
-*	@method DFS + Dynamic Programming
-*/
+#include <cstdio>
+#include <cstring>
+#include <vector>
 
-#define _CRT_SECURE_NO_WARNINGS
+using std::vector;
 
-#include <stdio.h>
-#include <string.h>
-
-typedef enum BOOL { FALSE, TRUE } BOOL;
+const int MAX_BUILDING_NUM = 1000;
 
 int T, R, N, K, W;
-int NT[1001];
-int DP[1001];
-BOOL M[1001][1001];
+int NT[MAX_BUILDING_NUM + 1];
+int DP[MAX_BUILDING_NUM + 1];
 
-int algorithm(int cur)
-{
-	int i, ret = 0;
+vector<int> build[MAX_BUILDING_NUM + 1];
 
-	if (DP[cur])
-		ret = DP[cur];
-	else
-	{
-		for (i = 1; i <= N; i++)
-		{
-			if (M[cur][i] && ret < algorithm(i))
-				ret = algorithm(i);
-		}
-
-		ret += NT[cur];
-
-		DP[cur] = ret;
-	}
-
-	return ret;
+int algorithm(int cur) {
+    int &ret = DP[cur];
+    
+    if (ret > -1)
+        return ret;
+    
+    ret = 0;
+    for (auto &next : build[cur]) {
+        int tmp = algorithm(next);
+        if (ret < tmp)
+            ret = tmp;
+    }
+    
+    ret += NT[cur];
+    
+    return ret;
 }
 
 int main()
 {
-	int i, x, y;
-
-	scanf("%d", &T);
-
-	while (T--)
-	{
-		memset(M, FALSE, sizeof(M));
-		memset(DP, 0, sizeof(DP));
-
-		scanf("%d %d", &N, &K);
-
-		for (i = 1; i <= N; i++)
-			scanf("%d", &NT[i]);
-
-		while (K--)
-		{
-			scanf("%d %d", &x, &y);
-
-			M[y][x] = TRUE;
-		}
-
-		scanf("%d", &W);
-
-		R = algorithm(W);
-
-		printf("%d\n", R);
-	}
-
-	return 0;
+    int i, x, y;
+    
+    scanf("%d", &T);
+    
+    while (T--) {
+        memset(DP, -1, sizeof(DP));
+        
+        scanf("%d %d", &N, &K);
+        
+        for (i = 1; i <= N; i++) {
+            build[i].clear();
+            scanf("%d", &NT[i]);
+        }
+        
+        while (K--) {
+            scanf("%d %d", &x, &y);
+            build[y].push_back(x);
+        }
+        
+        scanf("%d", &W);
+        
+        R = algorithm(W);
+        
+        printf("%d\n", R);
+    }
+    
+    return 0;
 }

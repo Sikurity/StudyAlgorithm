@@ -1,11 +1,9 @@
 /**
-*	@link	https://www.acmicpc.net/problem/10446
-*	@date	2018. 04. 09
-*	@author	Sikurity
-*	@method Vizing's Theorem - Misra & Gries Edge Coloring Algorithm
-*/
-
-#define _CRT_SECURE_NO_WARNINGS
+ *    @link     https://www.acmicpc.net/problem/10446
+ *    @date     2018. 04. 09
+ *    @author   Sikurity
+ *    @method   Vizing's Theorem
+ */
 
 #include <cstdio>
 #include <cstring>
