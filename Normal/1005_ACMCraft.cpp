@@ -1,6 +1,13 @@
-#include <cstdio>
-#include <cstring>
-#include <vector>
+/**
+*    @link    https://www.acmicpc.net/problem/1005
+*    @date    2017. 04. 15
+*    @author    Sikurity
+*    @method DFS + Dynamic Programming / Topological Sorting
+*/
+
+using std::vector;
+
+const int MAX_BUILDING_NUM = 1000;
 
 using std::vector;
 
