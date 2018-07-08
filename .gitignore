@@ -19,3 +19,6 @@ Debug
 /in.txt
 /Algorithm.zip
 *.txt
+*.suo
+*.ipch
+*.opendb
