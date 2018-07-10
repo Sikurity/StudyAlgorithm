@@ -12,7 +12,7 @@ int N;
 int src[MAX_LEN];
 int dst[MAX_LEN];
 
-int DP[MAX_LEN][BASE][BASE]; // D[n][t0][t1] : 'n'번째 자물쇠 칸을 돌릴 때, 'n'칸이 이미 회전된 횟수(t0), "n + 1"칸이 이미 회전된 횟수(t0)
+int DP[MAX_LEN][BASE][BASE]; // D[n][t0][t1] : 'n'번째 자물쇠 칸을 돌릴 때, 'n'칸이 이미 회전된 횟수(t0), 'n + 1'칸이 이미 회전된 횟수(t0)
 
 int calcCost(int turn) {
     int move = turn > (BASE / 2) ? BASE - turn : turn;
@@ -33,9 +33,9 @@ int dfs(int idx, int t0, int t1) {
         for (int sec = 0; sec < BASE; sec++) {
             for (int thd = 0; thd < BASE; thd++) {
                 // t0은 n - 1에서 1칸 뒤에만 영향을 끼친 횟수, (n - 1) + 1 = 'n'칸 회전된 횟수
-                // t1는 n - 1에서 2칸 뒤에만 영향을 끼친 횟수, (n - 1) + 2 = "n + 1"칸 회전된 횟수
-                // sec는 (n, "n + 1") 2연속칸 동시 회전 횟수
-                // thd는 (n, "n + 1", ^n + 2^) 3연속칸 동시 회전 횟수
+                // t1는 n - 1에서 2칸 뒤에만 영향을 끼친 횟수, (n - 1) + 2 = 'n + 1'칸 회전된 횟수
+                // sec는 ('n', 'n + 1') 2연속칸 동시 회전 횟수
+                // thd는 ('n', 'n + 1', 'n + 2') 3연속칸 동시 회전 횟수
                 
                 int cur = (src[idx] + t0 + sec + thd) % BASE;   // src[idx] + ['n'칸 회전 횟수]
                 // ['n'칸 회전 횟수] = 이미 회전된 횟수(t0) + 2연속칸 동시 회전 횟수 + 3연속칸 동시 회전 횟수
@@ -48,8 +48,8 @@ int dfs(int idx, int t0, int t1) {
                 // thd: 3연속 칸[n : n + 2] 동시
                 // gap: 'n'칸 정답으로 맞추는 최소 회전 횟수
                 
-                int next_t0 = (t1 + sec + thd) % BASE;  // "n + 1"칸이 회전된 횟수
-                int next_t1 = thd;                      // ^n + 2^칸이 회전된 횟수
+                int next_t0 = (t1 + sec + thd) % BASE;  // 'n + 1'칸이 회전된 횟수
+                int next_t1 = thd;                      // 'n + 2'칸이 회전된 횟수
                 ans += dfs(idx + 1, next_t0, next_t1);
                 
                 ret = min(ret, ans);
